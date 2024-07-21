@@ -264,6 +264,87 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
           ),
+          SizedBox(height: 25),
+          Center(
+            child: Text(
+              "Ekspedisi",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Divider(color: Colors.black, thickness: 1),
+          SizedBox(height: 15),
+          Card(
+            elevation: 4,
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: DropdownSearch<Map<String, dynamic>>(
+                items: [
+                  {
+                    "code": "jne",
+                    "name": "JNE",
+                  },
+                  {
+                    "code": "tiki",
+                    "name": "TIKI",
+                  },
+                  {"code": "pos", "name": "Pos Indonesia"}
+                ],
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  itemBuilder: (context, item, isSelected) {
+                    return ListTile(
+                      title: Text(item["name"] ?? ""),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    );
+                  },
+                ),
+                dropdownBuilder: (context, item) =>
+                    Text(item?["name"] ?? "Pilih Ekspedisi"),
+                dropdownDecoratorProps: DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    labelText: "Pilih Ekspedisi",
+                    hintText: "Silahkan Pilih Eskpedisi",
+                  ),
+                ),
+                onChanged: (value) =>
+                    controller.eskpedisi.value = value?["code"] ?? "",
+              ),
+            ),
+          ),
+          SizedBox(height: 15),
+          Card(
+            elevation: 4,
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: TextField(
+                controller: controller.beratC,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                  labelText: "Berat",
+                  hintText: "Silahkan Input Berat",
+              )
+              ),
+            ),
+          ),
+          SizedBox(height: 25),
+          Obx(() => FloatingActionButton(
+                onPressed: () {
+                  if (controller.isLoading.isFalse) {
+                    controller.cekOngkir();
+                  }
+                },
+                child: controller.isLoading.isFalse
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.search),
+                          Text("Cek Ongkir"),
+                        ],
+                      )
+                    : CircularProgressIndicator(),
+              )),
         ],
       ),
     );
