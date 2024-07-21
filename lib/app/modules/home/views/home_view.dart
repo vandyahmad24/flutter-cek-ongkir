@@ -18,257 +18,254 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Aplikasi Cek Ongkir',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.blue,
-          centerTitle: true,
+      appBar: AppBar(
+        title: const Text(
+          'Aplikasi Cek Ongkir',
+          style: TextStyle(color: Colors.white),
         ),
-        body: ListView(
-          padding: EdgeInsets.all(20),
-          children: [
-            Center(
-              child: Text(
-                "Alamat Pengiriman",
-                style: TextStyle(
-                  fontSize: 18,
+        backgroundColor: Colors.blue,
+        centerTitle: true,
+      ),
+      body: ListView(
+        padding: EdgeInsets.all(20),
+        children: [
+          Center(
+            child: Text(
+              "Alamat Pengiriman",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Divider(color: Colors.black, thickness: 1),
+          SizedBox(height: 15),
+          Card(
+            elevation: 4,
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: DropdownSearch<Province>(
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  itemBuilder: (context, item, isSelected) {
+                    return ListTile(
+                      title: Text(item.province ?? ""),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    );
+                  },
                 ),
-              ),
-            ),
-            Divider(
-              color: Colors.black,
-              thickness: 1,
-              indent: 0,
-              endIndent: 0,
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            DropdownSearch<Province>(
-              popupProps: PopupProps.menu(
-                showSearchBox: true,
-                itemBuilder: (context, item, isSelected) {
-                  return ListTile(
-                    title: Text(item.province ?? ""),
+                dropdownBuilder: (context, item) =>
+                    Text(item?.province ?? "Pilih Provinsi"),
+                dropdownDecoratorProps: DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  );
-                },
-              ),
-              dropdownBuilder: (context, item) =>
-                  Text(item?.province ?? "Pilih Provinsi"),
-              dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  labelText: "Pilih Provinsi ",
-                  hintText: "Silahkan Pilih Provinsi",
+                    labelText: "Pilih Provinsi",
+                    hintText: "Silahkan Pilih Provinsi",
+                  ),
                 ),
-              ),
-              //hit
-              asyncItems: (String filter) async {
-                try {
-                  var response = await Dio().get(
-                    Config.apiUrl + '/province',
-                    options: Options(
-                      headers: {
-                        "key": Config.apiKey, // Hardcoded API key
-                      },
-                    ),
-                  );
+                asyncItems: (String filter) async {
+                  try {
+                    var response = await Dio().get(
+                      Config.apiUrl + '/province',
+                      options: Options(
+                        headers: {"key": Config.apiKey},
+                      ),
+                    );
 
-                  if (response.statusCode == 200) {
-                    List<dynamic> jsonList =
-                        response.data['rajaongkir']['results'];
-                    var provinces = Province.fromJsonList(jsonList);
-
-                    return provinces;
-                  } else {
-                    print('Failed to load provinces');
+                    if (response.statusCode == 200) {
+                      List<dynamic> jsonList =
+                          response.data['rajaongkir']['results'];
+                      var provinces = Province.fromJsonList(jsonList);
+                      return provinces;
+                    } else {
+                      print('Failed to load provinces');
+                      return [];
+                    }
+                  } catch (e) {
+                    print('Error: $e');
                     return [];
                   }
-                } catch (e) {
-                  print('Error: $e');
-                  return [];
-                }
-              },
-              onChanged: (Province? data) {
-                controller.provAsalId.value = data?.provinceId ?? "";
-              },
-            ),
-            SizedBox(height: 20),
-            DropdownSearch<City>(
-              popupProps: PopupProps.menu(
-                showSearchBox: true,
-                itemBuilder: (context, item, isSelected) {
-                  return ListTile(
-                    title: Text(item.cityName ?? ""),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  );
+                },
+                onChanged: (Province? data) {
+                  controller.provAsalId.value = data?.provinceId ?? "";
                 },
               ),
-              dropdownBuilder: (context, item) =>
-                  Text(item?.cityName ?? "Pilih Kota"),
-              dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  labelText: "Pilih Kota ",
-                  hintText: "Silahkan Pilih Kota",
+            ),
+          ),
+          SizedBox(height: 20),
+          Card(
+            elevation: 4,
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: DropdownSearch<City>(
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  itemBuilder: (context, item, isSelected) {
+                    return ListTile(
+                      title: Text(item.cityName ?? ""),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    );
+                  },
                 ),
-              ),
-              //hit
-              asyncItems: (String filter) async {
-                try {
-                  var response = await Dio().get(
-                    Config.apiUrl +
-                        '/city?province=${controller.provAsalId.value}',
-                    options: Options(
-                      headers: {
-                        "key": Config.apiKey, // Hardcoded API key
-                      },
-                    ),
-                  );
+                dropdownBuilder: (context, item) =>
+                    Text(item?.cityName ?? "Pilih Kota"),
+                dropdownDecoratorProps: DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    labelText: "Pilih Kota",
+                    hintText: "Silahkan Pilih Kota",
+                  ),
+                ),
+                asyncItems: (String filter) async {
+                  if (controller.provAsalId.value.isEmpty) {
+                    return []; // Return empty list if province ID is empty
+                  }
+                  try {
+                    var response = await Dio().get(
+                      Config.apiUrl +
+                          '/city?province=${controller.provAsalId.value}',
+                      options: Options(
+                        headers: {"key": Config.apiKey},
+                      ),
+                    );
 
-                  if (response.statusCode == 200) {
-                    List<dynamic> jsonList =
-                        response.data['rajaongkir']['results'];
-                    var city = City.fromJsonList(jsonList);
-
-                    return city;
-                  } else {
-                    print('Failed to load city');
+                    if (response.statusCode == 200) {
+                      List<dynamic> jsonList =
+                          response.data['rajaongkir']['results'];
+                      var city = City.fromJsonList(jsonList);
+                      return city;
+                    } else {
+                      print('Failed to load city');
+                      return [];
+                    }
+                  } catch (e) {
+                    print('Error: $e');
                     return [];
                   }
-                } catch (e) {
-                  print('Error: $e');
-                  return [];
-                }
-              },
-              onChanged: (City? data) {
-                controller.cityAsalId.value = data?.cityId ?? "";
-              },
-            ),
-            SizedBox(
-              height: 25,
-            ),
-            Center(
-              child: Text(
-                "Alamat Penerima",
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-            Divider(
-              color: Colors.black,
-              thickness: 1,
-              indent: 0,
-              endIndent: 0,
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            DropdownSearch<Province>(
-              popupProps: PopupProps.menu(
-                showSearchBox: true,
-                itemBuilder: (context, item, isSelected) {
-                  return ListTile(
-                    title: Text(item.province ?? ""),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  );
+                },
+                onChanged: (City? data) {
+                  controller.cityAsalId.value = data?.cityId ?? "";
                 },
               ),
-              dropdownBuilder: (context, item) =>
-                  Text(item?.province ?? "Pilih Provinsi"),
-              dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  labelText: "Pilih Provinsi ",
-                  hintText: "Silahkan Pilih Provinsi",
+            ),
+          ),
+          SizedBox(height: 25),
+          Center(
+            child: Text(
+              "Alamat Penerima",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Divider(color: Colors.black, thickness: 1),
+          SizedBox(height: 15),
+          Card(
+            elevation: 4,
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: DropdownSearch<Province>(
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  itemBuilder: (context, item, isSelected) {
+                    return ListTile(
+                      title: Text(item.province ?? ""),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    );
+                  },
                 ),
-              ),
-              //hit
-              asyncItems: (String filter) async {
-                try {
-                  var response = await Dio().get(
-                    Config.apiUrl + '/province',
-                    options: Options(
-                      headers: {
-                        "key": Config.apiKey, // Hardcoded API key
-                      },
-                    ),
-                  );
+                dropdownBuilder: (context, item) =>
+                    Text(item?.province ?? "Pilih Provinsi"),
+                dropdownDecoratorProps: DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    labelText: "Pilih Provinsi",
+                    hintText: "Silahkan Pilih Provinsi",
+                  ),
+                ),
+                asyncItems: (String filter) async {
+                  try {
+                    var response = await Dio().get(
+                      Config.apiUrl + '/province',
+                      options: Options(
+                        headers: {"key": Config.apiKey},
+                      ),
+                    );
 
-                  if (response.statusCode == 200) {
-                    List<dynamic> jsonList =
-                        response.data['rajaongkir']['results'];
-                    var provinces = Province.fromJsonList(jsonList);
-
-                    return provinces;
-                  } else {
-                    print('Failed to load provinces');
+                    if (response.statusCode == 200) {
+                      List<dynamic> jsonList =
+                          response.data['rajaongkir']['results'];
+                      var provinces = Province.fromJsonList(jsonList);
+                      return provinces;
+                    } else {
+                      print('Failed to load provinces');
+                      return [];
+                    }
+                  } catch (e) {
+                    print('Error: $e');
                     return [];
                   }
-                } catch (e) {
-                  print('Error: $e');
-                  return [];
-                }
-              },
-              onChanged: (Province? data) {
-                controller.provTujuanId.value = data?.provinceId ?? "";
-              },
-            ),
-            SizedBox(height: 20),
-            DropdownSearch<City>(
-              popupProps: PopupProps.menu(
-                showSearchBox: true,
-                itemBuilder: (context, item, isSelected) {
-                  return ListTile(
-                    title: Text(item.cityName ?? ""),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  );
+                },
+                onChanged: (Province? data) {
+                  controller.provTujuanId.value = data?.provinceId ?? "";
                 },
               ),
-              dropdownBuilder: (context, item) =>
-                  Text(item?.cityName ?? "Pilih Kota"),
-              dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  labelText: "Pilih Kota ",
-                  hintText: "Silahkan Pilih Kota",
+            ),
+          ),
+          SizedBox(height: 20),
+          Card(
+            elevation: 4,
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: DropdownSearch<City>(
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  itemBuilder: (context, item, isSelected) {
+                    return ListTile(
+                      title: Text(item.cityName ?? ""),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    );
+                  },
                 ),
-              ),
-              //hit
-              asyncItems: (String filter) async {
-                try {
-                  var response = await Dio().get(
-                    Config.apiUrl +
-                        '/city?province=${controller.provTujuanId.value}',
-                    options: Options(
-                      headers: {
-                        "key": Config.apiKey, // Hardcoded API key
-                      },
-                    ),
-                  );
+                dropdownBuilder: (context, item) =>
+                    Text(item?.cityName ?? "Pilih Kota"),
+                dropdownDecoratorProps: DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    labelText: "Pilih Kota",
+                    hintText: "Silahkan Pilih Kota",
+                  ),
+                ),
+                asyncItems: (String filter) async {
+                  if (controller.provTujuanId.value.isEmpty) {
+                    return []; // Return empty list if province ID is empty
+                  }
+                  try {
+                    var response = await Dio().get(
+                      Config.apiUrl +
+                          '/city?province=${controller.provTujuanId.value}',
+                      options: Options(
+                        headers: {"key": Config.apiKey},
+                      ),
+                    );
 
-                  if (response.statusCode == 200) {
-                    List<dynamic> jsonList =
-                        response.data['rajaongkir']['results'];
-                    var city = City.fromJsonList(jsonList);
-
-                    return city;
-                  } else {
-                    print('Failed to load city');
+                    if (response.statusCode == 200) {
+                      List<dynamic> jsonList =
+                          response.data['rajaongkir']['results'];
+                      var city = City.fromJsonList(jsonList);
+                      return city;
+                    } else {
+                      print('Failed to load city');
+                      return [];
+                    }
+                  } catch (e) {
+                    print('Error: $e');
                     return [];
                   }
-                } catch (e) {
-                  print('Error: $e');
-                  return [];
-                }
-              },
-              onChanged: (City? data) {
-                controller.cityTujuanId.value = data?.cityId ?? "";
-              },
-            )
-          ],
-        ));
+                },
+                onChanged: (City? data) {
+                  controller.cityTujuanId.value = data?.cityId ?? "";
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
